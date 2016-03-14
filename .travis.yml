@@ -3,6 +3,9 @@ language: ruby
 rvm:
   - 2.2.1
 
+services:
+  - postgresql
+
 bundler_args: --without development --deployment
 
 cache: bundler
