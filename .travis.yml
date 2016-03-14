@@ -16,7 +16,7 @@ before_script:
 script:
   - bundle exec rspec spec
 
-deploy
+deploy:
   provider: heroku
   app: hatena-relation
-  api_key:
+  api_key: $HEROKU_API_KEY
