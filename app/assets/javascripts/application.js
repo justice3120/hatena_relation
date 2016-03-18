@@ -15,4 +15,7 @@
 //= require twitter/bootstrap
 //= require turbolinks
 //= require linkurious-v1.5.0/sigma.min
+//= require linkurious-v1.5.0/plugins/sigma.plugins.animate.min
+//= require linkurious-v1.5.0/plugins/sigma.parsers.gexf.min
+//= require linkurious-v1.5.0/plugins/sigma.layouts.forceLink.min
 //= require_tree .

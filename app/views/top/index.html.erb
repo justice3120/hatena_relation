@@ -1,45 +1,70 @@
-<style>
-#graph-container {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  position: absolute;
-}
-</style>
-
-<div id="graph-container"></div>
+<div id="container">
+  <style>
+    #graph-container {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      position: absolute;
+    }
+    #layout-notification {
+      display: block;
+      position: absolute;
+      top: 1em;
+      left: 1em;
+      visibility: hidden;
+      font-weight: bold;
+    }
+  </style>
+  <div id="graph-container"><span id="layout-notification">Layout in progress...</span></div>
+</div>
 
 <script>
-var i,
-    s,
-    N = 100,
-    E = 500,
-    g = {
-      nodes: [],
-      edges: []
-    };
-// Generate a random graph:
-for (i = 0; i < N; i++)
-  g.nodes.push({
-    id: 'n' + i,
-    label: 'Node ' + i,
-    x: Math.random(),
-    y: Math.random(),
-    size: Math.random()*2+1,
-    color: '#333'
+sigma.parsers.gexf('data/arctic.gexf', {
+  // container: 'graph-container',
+  renderer: {
+    container: document.getElementById('graph-container'),
+    type: 'canvas'
+  },
+  settings: {
+    edgeColor: 'default',
+    defaultEdgeColor: '#ccc',
+    animationsTime: 5000,
+    drawLabels: false,
+    scalingMode: 'outside',
+    batchEdgesDrawing: true,
+    hideEdgesOnMove: true,
+    sideMargin: 1
+  }
+}, function(s) {
+  s.graph.nodes().forEach(function (n) {
+    if (!s.graph.degree(n.id)) {
+      s.graph.dropNode(n.id);
+    }
+    else {
+      n.x = Math.random();
+      n.y = Math.random();
+    }
   });
-for (i = 0; i < E; i++)
-  g.edges.push({
-    id: 'e' + i,
-    source: 'n' + (Math.random() * N | 0),
-    target: 'n' + (Math.random() * N | 0),
-    size: Math.random(),
-    color: 'rgba(10,20,30,0.15)'
+  s.refresh();
+  // Configure the ForceLink algorithm:
+  var fa = sigma.layouts.configForceLink(s, {
+    worker: true,
+    autoStop: true,
+    background: true,
+    scaleRatio: 30,
+    gravity: 3,
+    easing: 'cubicInOut'
   });
-// Instantiate sigma:
-s = new sigma({
-  graph: g,
-  container: 'graph-container'
+  // Bind the events:
+  fa.bind('start stop', function(e) {
+    console.log(e.type);
+    document.getElementById('layout-notification').style.visibility = '';
+    if (e.type == 'start') {
+      document.getElementById('layout-notification').style.visibility = 'visible';
+    }
+  });
+  // Start the ForceLink algorithm:
+  sigma.layouts.startForceLink();
 });
 </script>
