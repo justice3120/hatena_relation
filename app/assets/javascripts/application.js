@@ -14,4 +14,5 @@
 //= require jquery_ujs
 //= require twitter/bootstrap
 //= require turbolinks
+//= require linkurious-v1.5.0/sigma.min
 //= require_tree .
