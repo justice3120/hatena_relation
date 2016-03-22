@@ -1,5 +1,3 @@
-require 'sidekiq/web'
-
 Rails.application.routes.draw do
   root :to => 'top#index'
 
@@ -12,6 +10,7 @@ Rails.application.routes.draw do
 
   # Sidekiq の Web コンソールをマウント
   if Rails.env.development?
+    require 'sidekiq/web'
     mount Sidekiq::Web => "/sidekiq"
   end
   # The priority is based upon order of creation: first created -> highest priority.
