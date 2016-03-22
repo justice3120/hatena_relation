@@ -1,10 +1,17 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
   root :to => 'top#index'
 
   get 'top/index'
 
   get 'collect_requests' => 'collect_requests#create'
+  get 'collect_requests/:request_id' => 'collect_requests#show'
+  delete 'collect_requests/:request_id' => 'collect_requests#destroy'
 
+
+  # Sidekiq の Web コンソールをマウント
+  mount Sidekiq::Web => "/sidekiq"
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
