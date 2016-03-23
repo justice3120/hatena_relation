@@ -14,6 +14,9 @@
 //= require jquery_ujs
 //= require twitter/bootstrap
 //= require turbolinks
+//= require jquery.treeselect.js/jquery.chosentree
+//= require jquery.treeselect.js/jquery.treeselect
+//= require cross-domain-ajax/jquery.xdomainajax
 //= require linkurious-v1.5.0/sigma.min
 //= require linkurious-v1.5.0/plugins/sigma.plugins.animate.min
 //= require linkurious-v1.5.0/plugins/sigma.parsers.json.min
