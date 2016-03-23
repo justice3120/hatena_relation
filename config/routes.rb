@@ -3,7 +3,8 @@ Rails.application.routes.draw do
 
   get 'top/index'
 
-  get 'collect_requests' => 'collect_requests#create'
+  post 'collect_requests' => 'collect_requests#create'
+  get 'collect_requests' => 'collect_requests#index'
   get 'collect_requests/:request_id' => 'collect_requests#show'
   delete 'collect_requests/:request_id' => 'collect_requests#destroy'
 
