@@ -1,4 +1,4 @@
 :verbose: false
-:concurrency:  25
+:concurrency:  10
 :queues:
   - default
