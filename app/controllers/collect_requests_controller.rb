@@ -25,7 +25,6 @@ class CollectRequestsController < ApplicationController
 
   def show
     @collect_request = CollectRequest.find_by(:request_id => params[:request_id])
-    @collect_request[:result] = JSON.parse(@collect_request[:result])
 
     respond_to do |format|
       response.headers['Content-Type'] = 'application/json; charset=utf-8'

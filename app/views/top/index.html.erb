@@ -20,23 +20,25 @@
 </div>
 
 <script>
-sigma.parsers.gexf('data/arctic.gexf', {
-  // container: 'graph-container',
-  renderer: {
-    container: document.getElementById('graph-container'),
-    type: 'canvas'
-  },
-  settings: {
-    edgeColor: 'default',
-    defaultEdgeColor: '#ccc',
-    animationsTime: 5000,
-    drawLabels: false,
-    scalingMode: 'outside',
-    batchEdgesDrawing: true,
-    hideEdgesOnMove: true,
-    sideMargin: 1
-  }
-}, function(s) {
+$.getJSON("collect_requests/f6991635-5cc4-4da9-b7e3-1175556288f9", function(data){
+  result = $.parseJSON(data.result)
+  var s = new sigma({
+    renderer: {
+      container: document.getElementById('graph-container'),
+      type: 'canvas'
+    },
+    settings: {
+      edgeColor: 'default',
+      defaultEdgeColor: '#ccc',
+      animationsTime: 5000,
+      drawLabels: false,
+      scalingMode: 'outside',
+      batchEdgesDrawing: true,
+      hideEdgesOnMove: true,
+      sideMargin: 1
+    }
+  });
+  s.graph.read(result);
   s.graph.nodes().forEach(function (n) {
     if (!s.graph.degree(n.id)) {
       s.graph.dropNode(n.id);
@@ -47,7 +49,6 @@ sigma.parsers.gexf('data/arctic.gexf', {
     }
   });
   s.refresh();
-  // Configure the ForceLink algorithm:
   var fa = sigma.layouts.configForceLink(s, {
     worker: true,
     autoStop: true,
@@ -64,7 +65,6 @@ sigma.parsers.gexf('data/arctic.gexf', {
       document.getElementById('layout-notification').style.visibility = 'visible';
     }
   });
-  // Start the ForceLink algorithm:
   sigma.layouts.startForceLink();
 });
 </script>
