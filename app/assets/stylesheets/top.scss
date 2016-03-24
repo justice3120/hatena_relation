@@ -1,3 +1,65 @@
+
+#side-menu {
+  top: auto;
+  bottom: auto;
+  left: 0px;
+  position: absolute;
+  z-index: 10;
+}
+
+#category-list {
+  float: left;
+}
+
+.list-group-item {
+  border-left-width: 5px;
+  border-left-style: solid;
+  .entry {
+    left: 20px;
+  }
+}
+
+.hotentry, .general {
+  border-left-color: #008FDE;
+}
+.category-social, .category-economics {
+  border-left-color: #A78358;
+}
+.category-life, .category-knowledge {
+  border-left-color: #068B71;
+}
+.category-it {
+  border-left-color: #00A5DE;
+}
+.category-fun, .category-entertainment, .category-game {
+  border-left-color: #F5AC0F;
+}
+
+#menu-toggle-button {
+  width: 5px;
+  height: 100%;
+  float: right;
+  position: relative;
+}
+
+#start-button {
+  width: 80px;
+  height: 80px;
+  bottom: 50px;
+  right: 50px;
+  -webkit-border-radius: 40px;
+  -moz-border-radius: 40px;
+  border-radius: 40px;
+  color: white;
+  font-size: 16px;
+  background-color: #1E90FF;
+  text-align: center;
+  line-height: 80px;
+  position: absolute;
+  z-index: 10;
+  cursor: pointer;
+}
+
 #graph-container {
   top: 0;
   bottom: 0;
