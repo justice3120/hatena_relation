@@ -6,20 +6,13 @@ $(function() {
     success: function(res) {
       $(res.responseText).find("#navi-category").find(".navi-link").each(function(index, categoryElement) {
         var categoryText = $(categoryElement).find('span').text();
-        var categoryClass = $(categoryElement).find('a').attr("class");
-        $("<li/>").addClass('list-group-item').addClass('category').addClass(categoryClass).removeClass('gnavi').text(categoryText).appendTo("#category-list");
+        var categoryClass = $(categoryElement).find('a').attr("class").split('-').pop();
+        var openButton = $("<button>").attr("type", "button").addClass("btn").addClass("btn-secondary").addClass("btn-sm").addClass("btn-open").text("+");
+        var checkbox = $("<input>").attr("type", "checkbox");
+        var categoryLiElement = $("<li/>").addClass('list-group-item').addClass('category').addClass(categoryClass).append(openButton).append($("<div/>").text(categoryText));
+        categoryLiElement.appendTo("#category-list");
       });
     }
-  });
-  var categoryList = ['', 'general', 'social', 'economics', 'life', 'knowledge', 'it', 'fun', 'entertainment', 'game'];
-  $.each(categoryList, function(index, category) {
-    $.ajax({
-      url: hatenaUrl + category,
-      type: 'GET',
-      success: function(res) {
-        res
-      }
-    });
   });
   $("#start-button").click(function() {
     $.getJSON('collect_requests/f6991635-5cc4-4da9-b7e3-1175556288f9', function(data) {

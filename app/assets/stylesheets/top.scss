@@ -11,7 +11,17 @@
   float: left;
 }
 
+.btn-open {
+  padding-top: 0px;
+  padding-right: 5px;
+  padding-bottom: 0px;
+  padding-left: 5px;
+  margin-right: 10px;
+  float: left;
+}
+
 .list-group-item {
+  width: 180px;
   border-left-width: 5px;
   border-left-style: solid;
   .entry {
@@ -22,16 +32,16 @@
 .hotentry, .general {
   border-left-color: #008FDE;
 }
-.category-social, .category-economics {
+.social, .economics {
   border-left-color: #A78358;
 }
-.category-life, .category-knowledge {
+.life, .knowledge {
   border-left-color: #068B71;
 }
-.category-it {
+.it {
   border-left-color: #00A5DE;
 }
-.category-fun, .category-entertainment, .category-game {
+.fun, .entertainment, .game {
   border-left-color: #F5AC0F;
 }
 
