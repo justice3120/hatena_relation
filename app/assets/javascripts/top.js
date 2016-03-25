@@ -41,7 +41,6 @@ $(function() {
           success: function(data) {
             if (data.completed) {
               clearInterval(timerId);
-              HoldOn.close();
               var result = $.parseJSON(data.result);
               drawNetwork(result);
             }
@@ -86,12 +85,8 @@ $(function() {
       gravity: 3,
       easing: 'cubicInOut'
     });
-    fa.bind('start stop', function(e) {
-      console.log(e.type);
-      document.getElementById('layout-notification').style.visibility = '';
-      if (e.type === 'start') {
-        document.getElementById('layout-notification').style.visibility = 'visible';
-      }
+    fa.bind('stop', function(e) {
+      HoldOn.close();
     });
     sigma.layouts.startForceLink();
   }
