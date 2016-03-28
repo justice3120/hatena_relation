@@ -1,20 +1,9 @@
 $(function() {
   var hatenaUrl = "http://b.hatena.ne.jp/hotentry/"
-  $.ajax({
-    url: hatenaUrl,
-    type: 'GET',
-    success: function(res) {
-      $(res.responseText).find("#navi-category").find(".navi-link").each(function(index, categoryElement) {
-        var categoryText = $(categoryElement).find('span').text();
-        var categoryClass = $(categoryElement).find('a').attr("class").split('-').pop();
-        var openButton = $("<button>").attr("type", "button").addClass("btn").addClass("btn-secondary").addClass("btn-sm").addClass("btn-open").text("+");
-        var checkbox = $("<input>").attr("type", "checkbox");
-        var categoryLiElement = $("<li/>").addClass('list-group-item').addClass('category').addClass(categoryClass).append(openButton).append($("<div/>").text(categoryText));
-        categoryLiElement.appendTo("#category-list");
-      });
-    }
-  });
-  
+
+  var categories = loadCategories(hatenaUrl);
+
+
   $("#start-button").click(function() {
     var holdOnOption = {
       theme: "sk-cube-grid",
@@ -29,7 +18,7 @@ $(function() {
       var timerId = setInterval(function() {
         $.ajax({
           url: 'collect_requests/' + collectRequestId,
-          async: false,
+          async: true,
           dataType: "json",
           success: function(data) {
             if (data.completed) {
@@ -42,6 +31,34 @@ $(function() {
       }, 10 * 1000);
     });
   });
+
+  function loadCategories(hatenaUrl) {
+    var categories = []
+
+    var holdOnOption = {
+      theme: "sk-cube-grid",
+      message: "Loading..."
+    }
+    HoldOn.open(holdOnOption);
+
+    $.ajax({
+      url: hatenaUrl,
+      type: 'GET',
+      success: function(res) {
+        $(res.responseText).find("#navi-category").find(".navi-link").each(function(index, categoryElement) {
+          var categoryText = $(categoryElement).find('span').text();
+          var categoryClass = $(categoryElement).find('a').attr("class").split('-').pop();
+          categories[index] = categoryClass;
+          var openButton = $("<button>").attr("type", "button").addClass("btn").addClass("btn-secondary").addClass("btn-sm").addClass("btn-open").text("+");
+          var checkbox = $("<input>").attr("type", "checkbox");
+          var categoryLiElement = $("<li/>").addClass('list-group-item').addClass('category').addClass(categoryClass).append(openButton).append($("<div/>").text(categoryText));
+          categoryLiElement.appendTo("#category-list");
+          HoldOn.close();
+        });
+      }
+    });
+    return categories;
+  }
 
   function drawNetwork(data) {
     var s = new sigma({
