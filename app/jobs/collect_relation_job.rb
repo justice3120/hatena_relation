@@ -1,13 +1,15 @@
 require 'open-uri'
 require 'nokogiri'
 require 'cgi'
+require 'csv'
+require 'rinruby'
 
 
 class CollectRelationJob < ActiveJob::Base
   queue_as :default
 
   def perform(collect_request, params)
-    result = { :nodes => [], :edges => [] }
+    star_list = []
 
     params[:eid_list].uniq.each do |eid|
       url = "http://b.hatena.ne.jp/entry.comment_fragments?eid=#{eid}&page=1&per_page=10000&comment_only=0"
@@ -37,39 +39,52 @@ class CollectRelationJob < ActiveJob::Base
           bookmark['stars'].each do |star|
             star_sender = star['name'].to_s
             star_getter = bookmark['uri'].split('/')[3]
-
-            unless result[:nodes].find {|node| node[:id].eql?(star_sender)}
-              result[:nodes] << {
-                :id => star_sender,
-                :label => star_sender
-              }
-            end
-
-            unless result[:nodes].find {|node| node[:id].eql?(star_getter)}
-              result[:nodes] << {
-                :id => star_getter,
-                :label => star_getter
-              }
-            end
-
-            unless result[:edges].find {|edge| edge[:source].eql?(star_sender) && edge[:target].eql?(star_getter)}
-              result[:edges] << {
-                :id => SecureRandom.uuid,
-                :source => star_sender,
-                :target => star_getter
-              }
-            end
+            star_list << [star_sender, star_getter]
           end
         end
       end
     end
 
-    #star_list_counted = star_list.map do |star|
-    #  count = star_list.select {|s| s.eql?(star)}.length
-    #  star_list.delete(star)
-    #  star << count
-    #  star
-    #end
+    star_list_counted = star_list.map do |star|
+      count = star_list.select {|s| s.eql?(star)}.length
+      star_list.delete(star)
+      star << count
+      star
+    end
+
+    csv_path = Rails.root.join("tmp", "#{collect_request.request_id}.csv")
+
+    CSV.open(csv_path, "w") do |csv|
+      csv << ["star_sender", "star_getter", "count"]
+      star_list_counted.each do |row|
+        csv << row
+      end
+    end
+
+    R.eval <<EOS
+library(igraph)
+library(linkcomm)
+hatena_relations <- read.csv('#{csv_path}')
+g<-graph.edgelist(as.matrix(hatena_relations[1:2]),directed=T)
+E(g)$weight <- hatena_relations[[3]]
+g.bw<-betweenness(g, directed=T)
+g.v<-V(g)$name
+dcg <- decompose.graph(g)
+sp.all <- c()
+for (i in 1:length(dcg)){
+  set.seed(1)
+  sp <- spinglass.community(dcg[[i]])
+  sp.all <- rbind(sp.all, cbind(i, sp$names, sp$membership))
+}
+graph_id<-sp.all[, 1]
+name<-sp.all[, 2]
+membership<-sp.all[, 3]
+EOS
+
+    bw = R.pull "g.bw"
+    v = R.pull "g.v"
+
+    result = { :nodes => [], :edges => [] }
 
     collect_request.update(:completed => true, :result => result.to_json)
   end
