@@ -52,9 +52,11 @@ class CollectRelationJob < ActiveJob::Base
       star
     end
 
-    csv_path = Rails.root.join("tmp", "#{collect_request.request_id}.csv")
+    tmp_csv_path = Rails.root.join("tmp", "#{collect_request.request_id}_tmp.csv")
+    betweenness_csv_path = Rails.root.join("tmp", "#{collect_request.request_id}_betweenness.csv")
+    community_csv_path = Rails.root.join("tmp", "#{collect_request.request_id}_community.csv")
 
-    CSV.open(csv_path, "w") do |csv|
+    CSV.open(tmp_csv_path, "w") do |csv|
       csv << ["star_sender", "star_getter", "count"]
       star_list_counted.each do |row|
         csv << row
@@ -64,21 +66,23 @@ class CollectRelationJob < ActiveJob::Base
     R.eval <<EOS
 library(igraph)
 library(linkcomm)
-hatena_relations <- read.csv('#{csv_path}')
+hatena_relations <- read.csv('#{tmp_csv_path}')
 g<-graph.edgelist(as.matrix(hatena_relations[1:2]),directed=T)
 E(g)$weight <- hatena_relations[[3]]
 g.bw<-betweenness(g, directed=T)
-g.v<-V(g)$name
+bw <- c("name", "betweenness")
+for (i in 1:length(g.bw)){
+  bw <- rbind(V(g)$name[i], g.bw[i])
+}
+write.csv(bw, '#{betweenness_csv_path}', quote=F, row.names=F, col.names=F)
 dcg <- decompose.graph(g)
-sp.all <- c()
+sp.all <- c("graph_id", "name", "membership")
 for (i in 1:length(dcg)){
   set.seed(1)
   sp <- spinglass.community(dcg[[i]])
   sp.all <- rbind(sp.all, cbind(i, sp$names, sp$membership))
 }
-graph_id<-sp.all[, 1]
-name<-sp.all[, 2]
-membership<-sp.all[, 3]
+write.csv(sp.all, '#{community_csv_path}', quote=F, row.names=F, col.names=F)
 EOS
 
     bw = R.pull "g.bw"
