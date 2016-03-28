@@ -61,26 +61,28 @@ class CollectRelationJob < ActiveJob::Base
       end
     end
 
-    R.eval "library(igraph)"
-    R.eval "library(linkcomm)"
-    R.eval "hatena_relations <- read.csv('#{csv_path}')"
-    R.eval "g<-graph.edgelist(as.matrix(hatena_relations[1:2]),directed=T)"
-    R.eval "E(g)$weight <- hatena_relations[[3]]"
-    R.eval "g.bw<-betweenness(g, directed=T)"
-    R.eval "g.v<-V(g)$name"
-    R.eval "dcg <- decompose.graph(g)"
-    R.eval "sp.all <- c()"
-    R.eval "for (i in 1:length(dcg)){"
-    R.eval "set.seed(1)"
-    R.eval "sp <- spinglass.community(dcg[[i]])"
-    R.eval "sp.all <- rbind(sp.all, cbind(i, sp$names, sp$membership))"
-    R.eval "}"
+    R.eval <<EOS
+library(igraph)
+library(linkcomm)
+hatena_relations <- read.csv('#{csv_path}')
+g<-graph.edgelist(as.matrix(hatena_relations[1:2]),directed=T)
+E(g)$weight <- hatena_relations[[3]]
+g.bw<-betweenness(g, directed=T)
+g.v<-V(g)$name
+dcg <- decompose.graph(g)
+sp.all <- c()
+for (i in 1:length(dcg)){
+  set.seed(1)
+  sp <- spinglass.community(dcg[[i]])
+  sp.all <- rbind(sp.all, cbind(i, sp$names, sp$membership))
+}
+graph_id<-sp.all[, 1]
+name<-sp.all[, 2]
+membership<-sp.all[, 3]
+EOS
 
-    gw = R.pull "g.bw"
+    bw = R.pull "g.bw"
     v = R.pull "g.v"
-
-    comunity = R.pull "sp.all"
-    p comunity
 
     result = { :nodes => [], :edges => [] }
 
