@@ -14,31 +14,12 @@ class CollectRequestsController < ApplicationController
     end
   end
 
-  def index
-    @collect_requests = CollectRequest.all.map {|r| { :request_id => r[:request_id], :completed => r[:completed] }}
-
-    respond_to do |format|
-      response.headers['Content-Type'] = 'application/json; charset=utf-8'
-      format.any { render json: @collect_requests.to_json }
-    end
-  end
-
   def show
     @collect_request = CollectRequest.find_by(:request_id => params[:request_id])
 
     respond_to do |format|
       response.headers['Content-Type'] = 'application/json; charset=utf-8'
       format.any { render json: @collect_request.to_json }
-    end
-  end
-
-  def destroy
-    @collect_request = CollectRequest.find_by(:request_id => params[:request_id])
-    @collect_request.destroy!
-
-    respond_to do |format|
-      response.headers['Content-Type'] = 'application/json; charset=utf-8'
-      format.any { render status: 204, json: nil }
     end
   end
 

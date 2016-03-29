@@ -52,11 +52,10 @@ class CollectRelationJob < ActiveJob::Base
       star
     end
 
-    tmp_csv_path = Rails.root.join("tmp", "#{collect_request.request_id}_tmp.csv")
-    betweenness_csv_path = Rails.root.join("tmp", "#{collect_request.request_id}_betweenness.csv")
-    community_csv_path = Rails.root.join("tmp", "#{collect_request.request_id}_community.csv")
+    edges_csv_path = Rails.root.join("tmp", "#{collect_request.request_id}_edges.csv")
+    nodes_csv_path = Rails.root.join("tmp", "#{collect_request.request_id}_nodes.csv")
 
-    CSV.open(tmp_csv_path, "w") do |csv|
+    CSV.open(edges_csv_path, "w") do |csv|
       csv << ["star_sender", "star_getter", "count"]
       star_list_counted.each do |row|
         csv << row
@@ -66,29 +65,57 @@ class CollectRelationJob < ActiveJob::Base
     R.eval <<EOS
 library(igraph)
 library(linkcomm)
-hatena_relations <- read.csv('#{tmp_csv_path}')
+hatena_relations <- read.csv('#{edges_csv_path}')
 g<-graph.edgelist(as.matrix(hatena_relations[1:2]),directed=T)
 E(g)$weight <- hatena_relations[[3]]
 g.bw<-betweenness(g, directed=T)
-bw <- c("name", "betweenness")
-for (i in 1:length(g.bw)){
-  bw <- rbind(V(g)$name[i], g.bw[i])
-}
-write.csv(bw, '#{betweenness_csv_path}', quote=F, row.names=F, col.names=F)
 dcg <- decompose.graph(g)
-sp.all <- c("graph_id", "name", "membership")
+sp.all <- c()
 for (i in 1:length(dcg)){
   set.seed(1)
   sp <- spinglass.community(dcg[[i]])
-  sp.all <- rbind(sp.all, cbind(i, sp$names, sp$membership))
+  sp.all <- rbind(sp.all, cbind(sp$names, g.bw[sp$names], i, sp$membership))
 }
-write.csv(sp.all, '#{community_csv_path}', quote=F, row.names=F, col.names=F)
+nodes <- as.data.frame(sp.all)
+colnames(nodes) <- c("name", "bw", "graph_id", "membership")
+write.csv(nodes, '#{nodes_csv_path}', quote=F, row.names=F)
 EOS
 
-    bw = R.pull "g.bw"
-    v = R.pull "g.v"
-
     result = { :nodes => [], :edges => [] }
+
+    edges = CSV.table(edges_csv_path)
+    edges.each do |edge|
+      result[:edges] << {
+        :id => SecureRandom.uuid,
+        :source => edge[:star_sender],
+        :target => edge[:star_getter],
+        :size => edge[:count],
+        :type => 'arrow'
+      }
+    end
+
+    nodes = CSV.table(nodes_csv_path)
+    bw_max = nodes[:bw].max
+    color_list = []
+    nodes.each do |node|
+      unless color_list[node[:graph_id]]
+        color_list[node[:graph_id]] = []
+      end
+      unless color_list[node[:graph_id]][node[:membership]]
+        color_list[node[:graph_id]][node[:membership]] = '#' + rand(0x1000000).to_s(16).rjust(6, '0')
+      end
+      result[:nodes] << {
+        :id => node[:name],
+        :label => node[:name],
+        :size => 5 * (node[:bw].to_f / bw_max),
+        :color => color_list[node[:graph_id]][node[:membership]],
+        :type => 'square',
+        :image => {
+          :url => "http://cdn1.www.st-hatena.com/users/#{node[:name][0, 2]}/#{node[:name]}/profile.gif",
+          :scale => 0.9
+        }
+      }
+    end
 
     collect_request.update(:completed => true, :result => result.to_json)
   end

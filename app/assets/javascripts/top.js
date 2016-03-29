@@ -7,7 +7,7 @@ $(function() {
   $("#start-button").click(function() {
     var holdOnOption = {
       theme: "sk-cube-grid",
-      message: "Analyzing..."
+      message: "Processing ..."
     }
     HoldOn.open(holdOnOption);
 
@@ -37,7 +37,7 @@ $(function() {
 
     var holdOnOption = {
       theme: "sk-cube-grid",
-      message: "Loading..."
+      message: "Loading ..."
     }
     HoldOn.open(holdOnOption);
 
