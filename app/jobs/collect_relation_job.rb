@@ -118,6 +118,9 @@ EOS
     end
 
     collect_request.update(:completed => true, :result => result.to_json)
+
+    File.delete(edges_csv_path)
+    File.delete(nodes_csv_path)
   end
 
   private

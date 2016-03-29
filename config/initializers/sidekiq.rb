@@ -1,4 +1,7 @@
 Sidekiq.configure_server do |config|
+  config.server_middleware do |chain|
+    chain.add Sidekiq::Middleware::Server::RetryJobs, :max_retries => 0
+  end
   case Rails.env
     when 'production' then
       config.redis = { url: ENV['REDIS_URL'], namespace: 'sidekiq' }
