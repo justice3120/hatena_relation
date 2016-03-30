@@ -3,6 +3,27 @@ $(function() {
 
   var categories = loadCategories(hatenaUrl);
 
+  var s = new sigma({
+    renderer: {
+      container: document.getElementById('graph-container'),
+      type: 'canvas'
+    },
+    settings: {
+      edgeColor: 'default',
+      defaultEdgeColor: '#ccc',
+      animationsTime: 5000,
+      drawLabels: false,
+      scalingMode: 'outside',
+      batchEdgesDrawing: true,
+      hideEdgesOnMove: true,
+      minEdgeSize: 0.5,
+      maxEdgeSize: 2.5,
+      maxNodeSize: 3,
+      maxNodeSize: 30,
+      sideMargin: 1,
+      imageThreshold: 3
+    }
+  });
 
   $("#start-button").click(function() {
     var holdOnOption = {
@@ -11,7 +32,7 @@ $(function() {
     }
     HoldOn.open(holdOnOption);
 
-    requestData = { collect_request: { eid_list: ["283062490"] } }
+    requestData = { collect_request: { eid_list: ["283517550"] } }
     $.post("collect_requests", requestData, function(response) {
       var collectRequestId = response.request_id
       var retryCount = 0;
@@ -61,22 +82,7 @@ $(function() {
   }
 
   function drawNetwork(data) {
-    var s = new sigma({
-      renderer: {
-        container: document.getElementById('graph-container'),
-        type: 'canvas'
-      },
-      settings: {
-        edgeColor: 'default',
-        defaultEdgeColor: '#ccc',
-        animationsTime: 5000,
-        drawLabels: false,
-        scalingMode: 'outside',
-        batchEdgesDrawing: true,
-        hideEdgesOnMove: true,
-        sideMargin: 1
-      }
-    });
+    s.graph.clear();
     s.graph.read(data);
     s.graph.nodes().forEach(function(n) {
       if (!s.graph.degree(n.id)) {
@@ -87,7 +93,7 @@ $(function() {
       }
     });
     s.refresh();
-    var fa = sigma.layouts.configForceLink(s, {
+    /*var fa = sigma.layouts.configForceLink(s, {
       worker: true,
       autoStop: true,
       background: true,
@@ -97,7 +103,15 @@ $(function() {
     });
     fa.bind('stop', function(e) {
       HoldOn.close();
+    });*/
+    var fr = sigma.layouts.fruchtermanReingold.configure(s, {
+      gravity: 9,
+      easing: 'cubicInOut'
     });
-    sigma.layouts.startForceLink();
+    fr.bind('stop', function(e) {
+      HoldOn.close();
+    });
+    //sigma.layouts.startForceLink();
+    sigma.layouts.fruchtermanReingold.start(s);
   }
 });

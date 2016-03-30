@@ -37,8 +37,10 @@ class CollectRelationJob < ActiveJob::Base
             bookmark['stars'] = get_json(url)['entries'].first['stars']
           end
           bookmark['stars'].each do |star|
-            star_sender = star['name'].to_s
-            star_getter = bookmark['uri'].split('/')[3]
+            raw_star_sender = star['name'].to_s
+            raw_star_getter = bookmark['uri'].split('/')[3]
+            star_sender = raw_star_sender.include?('@') ? raw_star_sender.split('@').first : raw_star_sender
+            star_getter = raw_star_getter.include?('@') ? raw_star_getter.split('@').first : raw_star_getter
             star_list << [star_sender, star_getter]
           end
         end
@@ -107,11 +109,11 @@ EOS
       result[:nodes] << {
         :id => node[:name],
         :label => node[:name],
-        :size => 5 * (node[:bw].to_f / bw_max),
+        :size => node[:bw] > 1.0 ? node[:bw].to_f : 0.0,
         :color => color_list[node[:graph_id]][node[:membership]],
         :type => 'square',
         :image => {
-          :url => "http://cdn1.www.st-hatena.com/users/#{node[:name][0, 2]}/#{node[:name]}/profile.gif",
+          :url => "http://cdn1.www.st-hatena.com/users/#{node[:name].to_s[0, 2]}/#{node[:name]}/profile.gif",
           :scale => 0.9
         }
       }
