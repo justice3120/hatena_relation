@@ -3,7 +3,7 @@ class CollectRequestsController < ApplicationController
 
   def create
     request_id = SecureRandom.uuid
-    @collect_request = CollectRequest.new(:request_id => request_id, :completed => false)
+    @collect_request = CollectRequest.new(:request_id => request_id, :status => "waiting")
     @collect_request.save
 
     CollectRelationJob.perform_later(@collect_request, collect_request_params)

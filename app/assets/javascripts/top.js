@@ -35,17 +35,21 @@ $(function() {
     requestData = { collect_request: { eid_list: ["283517550"] } }
     $.post("collect_requests", requestData, function(response) {
       var collectRequestId = response.request_id
-      var retryCount = 0;
       var timerId = setInterval(function() {
         $.ajax({
           url: 'collect_requests/' + collectRequestId,
           async: true,
           dataType: "json",
           success: function(data) {
-            if (data.completed) {
+            if (data.status == "completed") {
               clearInterval(timerId);
               var result = $.parseJSON(data.result);
               drawNetwork(result);
+            } else if (data.status == "failed") {
+              clearInterval(timerId);
+              var msg = "処理が失敗しました";
+              HoldOn.close();
+              showErrorMessage(msg);
             }
           }
         });
@@ -113,5 +117,9 @@ $(function() {
     });
     //sigma.layouts.startForceLink();
     sigma.layouts.fruchtermanReingold.start(s);
+  }
+
+  function showErrorMessage(msg) {
+
   }
 });

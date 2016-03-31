@@ -9,6 +9,8 @@ class CollectRelationJob < ActiveJob::Base
   queue_as :default
 
   def perform(collect_request, params)
+    collect_request.update(:status => "processing")
+
     star_list = []
 
     params[:eid_list].uniq.each do |eid|
@@ -119,10 +121,13 @@ EOS
       }
     end
 
-    collect_request.update(:completed => true, :result => result.to_json)
+    collect_request.update(:status => "completed", :result => result.to_json)
 
     File.delete(edges_csv_path)
     File.delete(nodes_csv_path)
+  rescue => e
+    collect_request.update(:status => "failed")
+    puts "#{e.class}: #{e.message}"
   end
 
   private
