@@ -1,6 +1,6 @@
 require File.expand_path('../boot', __FILE__)
 
-ENV['PATH'] += ":/app/vendor/R/bin/R"
+ENV['PATH'] += ":/app/vendor/R/bin"
 p ENV['PATH']
 
 require 'rails/all'
