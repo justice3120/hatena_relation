@@ -12,24 +12,17 @@ class CollectRelationJob < ActiveJob::Base
     collect_request.update(:status => "processing")
 
     star_list = []
+    bookmark_list = []
 
     params[:eid_list].uniq.each do |eid|
-      url = "http://b.hatena.ne.jp/entry.comment_fragments?eid=#{eid}&page=1&per_page=10000&comment_only=0"
-      doc = get_html(url)
 
-      bookmark_users = doc.css('li').map do |bookmark|
-        {
-          name: bookmark.css('.username').text,
-          date: bookmark.css('.timestamp').css('a').text.split('/').join
-        }
-      end
+      bookmarks = get_bookmarks(eid)
 
-
-      while !bookmark_users.empty?
+      while !bookmarks.empty?
         param = "?eid=#{eid}"
 
-        bookmark_users.shift(100).each do |bookmark_user|
-          param += "&u=#{bookmark_user[:name]}/#{bookmark_user[:date]}"
+        bookmarks.shift(100).each do |bookmark|
+          param += "&u=#{bookmark[:name]}/#{bookmark[:date]}"
         end
 
         url = "http://s.hatena.ne.jp/entries.bookmark.json" + param
@@ -98,6 +91,8 @@ EOS
       }
     end
 
+    bookmarks = get_bookmarks(params[:eid_list].uniq.first)
+
     nodes = CSV.table(nodes_csv_path)
     bw_max = nodes[:bw].max
     color_list = []
@@ -108,9 +103,18 @@ EOS
       unless color_list[node[:graph_id]][node[:membership]]
         color_list[node[:graph_id]][node[:membership]] = '#' + rand(0x1000000).to_s(16).rjust(6, '0')
       end
+      label = node[:name]
+      if params[:eid_list].uniq.length.eql?(1)
+        bookmark = bookmarks.find {|b| b[:name].eql?(node[:name])}
+        if bookmark
+          label = "#{node[:name]}: #{bookmark[:comment]}"
+        else
+          label = "#{node[:name]}: <StarOnly>"
+        end
+      end
       result[:nodes] << {
         :id => node[:name],
-        :label => node[:name],
+        :label => label,
         :size => node[:bw] > 1.0 ? node[:bw].to_f : 0.0,
         :color => color_list[node[:graph_id]][node[:membership]],
         :type => 'square',
@@ -131,6 +135,20 @@ EOS
   end
 
   private
+
+  def get_bookmarks(eid)
+    url = "http://b.hatena.ne.jp/entry.comment_fragments?eid=#{eid}&page=1&per_page=10000&comment_only=0"
+    doc = get_html(url)
+
+    bookmarks = doc.css('li').map do |bookmark|
+      {
+        name: bookmark.css('.username').text,
+        date: bookmark.css('.timestamp').css('a').text.split('/').join,
+        comment: bookmark.css('.comment').text
+      }
+    end
+    bookmarks
+  end
 
   def get_html(url)
     charset = nil

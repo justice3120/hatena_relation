@@ -3,11 +3,19 @@
   top: auto;
   bottom: auto;
   left: 0px;
+  top: 20px;
   position: absolute;
   z-index: 10;
 }
 
-#category-list {
+#date {
+  height: 50px;
+  font-size: 30px;
+  text-align: center;
+  line-height: 50px;
+}
+
+#entry-list {
   float: left;
 }
 
@@ -21,12 +29,9 @@
 }
 
 .list-group-item {
-  width: 180px;
+  width: 300px;
   border-left-width: 5px;
   border-left-style: solid;
-  .entry {
-    left: 20px;
-  }
 }
 
 .hotentry, .general {
@@ -43,13 +48,6 @@
 }
 .fun, .entertainment, .game {
   border-left-color: #F5AC0F;
-}
-
-#menu-toggle-button {
-  width: 5px;
-  height: 100%;
-  float: right;
-  position: relative;
 }
 
 #start-button {
@@ -79,13 +77,4 @@
   left: 0;
   right: 0;
   position: absolute;
-}
-
-#layout-notification {
-  display: block;
-  position: absolute;
-  top: 1em;
-  left: 1em;
-  visibility: hidden;
-  font-weight: bold;
 }

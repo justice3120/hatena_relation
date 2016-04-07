@@ -1,7 +1,9 @@
 $(function() {
-  var hatenaUrl = "http://b.hatena.ne.jp/hotentry/"
+  var hatenaUrl = "http://b.hatena.ne.jp/hotentry"
+  var today = new Date();
+  $('#date').text(today.getFullYear() + '/' + (today.getMonth()+1) + '/' + today.getDate());
 
-  var categories = loadCategories(hatenaUrl);
+  loadEntries(hatenaUrl);
 
   var s = new sigma({
     renderer: {
@@ -32,7 +34,7 @@ $(function() {
     }
     HoldOn.open(holdOnOption);
 
-    requestData = { collect_request: { eid_list: ["283517550"] } }
+    requestData = { collect_request: { eid_list: [$("input[name='entry']:checked").val()] } }
     $.post("collect_requests", requestData, function(response) {
       var collectRequestId = response.request_id
       var timerId = setInterval(function() {
@@ -57,9 +59,7 @@ $(function() {
     });
   });
 
-  function loadCategories(hatenaUrl) {
-    var categories = []
-
+  function loadEntries(hatenaUrl) {
     var holdOnOption = {
       theme: "sk-cube-grid",
       message: "Loading ..."
@@ -70,19 +70,23 @@ $(function() {
       url: hatenaUrl,
       type: 'GET',
       success: function(res) {
-        $(res.responseText).find("#navi-category").find(".navi-link").each(function(index, categoryElement) {
-          var categoryText = $(categoryElement).find('span').text();
-          var categoryClass = $(categoryElement).find('a').attr("class").split('-').pop();
-          categories[index] = categoryClass;
-          var openButton = $("<button>").attr("type", "button").addClass("btn").addClass("btn-secondary").addClass("btn-sm").addClass("btn-open").text("+");
-          var checkbox = $("<input>").attr("type", "checkbox");
-          var categoryLiElement = $("<li/>").addClass('list-group-item').addClass('category').addClass(categoryClass).append(openButton).append($("<div/>").text(categoryText));
-          categoryLiElement.appendTo("#category-list");
-          HoldOn.close();
+        $(res.responseText).find("li.entry-unit").slice(0, 8).each(function(index, entryElement) {
+          var entry = $(entryElement)
+          var entryId = entry.attr('data-eid');
+          var title = entry.find('a.entry-link').text();
+          var category = entry.attr('class').split(' ')[1].split('-')[1];
+          var bookmark = entry.find('ul.users').find('span').text();
+          var bookmarkElement = $('<span class="label label-default label-pill pull-xs-right"/ >').text(bookmark);
+          var radioButton = $('<input name="entry" type="radio" class="entry-radio-button"/>').attr('value', entryId);
+          if (index == 0) {
+            radioButton.attr('checked', 'checked');
+          }
+          var entryLiElement = $("<li/>").addClass('list-group-item').addClass('entry').addClass(category).append(radioButton).append($("<div/>").text(title)).append(bookmarkElement);
+          entryLiElement.appendTo("#entry-list");
         });
+        HoldOn.close();
       }
     });
-    return categories;
   }
 
   function drawNetwork(data) {
