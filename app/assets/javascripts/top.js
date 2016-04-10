@@ -1,4 +1,11 @@
 $(function() {
+  $("#entry-list").selectable({
+    stop: function(e, ui) {
+      $(".ui-selected:first", this).each(function() {
+        $(this).siblings().removeClass("ui-selected");
+      });
+    }
+  });
   var hatenaUrl = "http://b.hatena.ne.jp/hotentry"
   var today = new Date();
   $('#date').text(today.getFullYear() + '/' + (today.getMonth()+1) + '/' + today.getDate());
@@ -34,7 +41,7 @@ $(function() {
     }
     HoldOn.open(holdOnOption);
 
-    requestData = { collect_request: { eid_list: [$("input[name='entry']:checked").val()] } }
+    requestData = { collect_request: { eid_list: [$('.entry.ui-selected').attr('eid')] } }
     $.post("collect_requests", requestData, function(response) {
       var collectRequestId = response.request_id
       var timerId = setInterval(function() {
@@ -76,12 +83,11 @@ $(function() {
           var title = entry.find('a.entry-link').text();
           var category = entry.attr('class').split(' ')[1].split('-')[1];
           var bookmark = entry.find('ul.users').find('span').text();
-          var bookmarkElement = $('<span class="label label-default label-pill pull-xs-right"/ >').text(bookmark);
-          var radioButton = $('<input name="entry" type="radio" class="entry-radio-button"/>').attr('value', entryId);
+          var bookmarkElement = $('<span class="label label-default label-pill pull-xs-right bookmark"/ >').text(bookmark);
+          var entryLiElement = $("<li/>").attr('eid', entryId).addClass('list-group-item').addClass('entry').addClass(category).append($('<div class="entry-title" />').text(title)).append(bookmarkElement);
           if (index == 0) {
-            radioButton.attr('checked', 'checked');
+            entryLiElement.addClass('ui-selected');
           }
-          var entryLiElement = $("<li/>").addClass('list-group-item').addClass('entry').addClass(category).append(radioButton).append($("<div/>").text(title)).append(bookmarkElement);
           entryLiElement.appendTo("#entry-list");
         });
         HoldOn.close();

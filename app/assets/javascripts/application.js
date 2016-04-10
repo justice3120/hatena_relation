@@ -14,6 +14,7 @@
 //= require jquery_ujs
 //= require twitter/bootstrap
 //= require turbolinks
+//= require jquery-ui-1.11.4/jquery-ui.min
 //= require HoldOn.js/HoldOn.min
 //= require linkurious-v1.5.0/sigma.min
 //= require linkurious-v1.5.0/plugins/sigma.plugins.animate.min

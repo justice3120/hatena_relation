@@ -1,4 +1,14 @@
 
+body {
+  overflow:auto;
+}
+
+#share {
+  top: 20px;
+  right: 30px;
+  position: absolute;
+}
+
 #side-menu {
   top: auto;
   bottom: auto;
@@ -32,6 +42,17 @@
   width: 300px;
   border-left-width: 5px;
   border-left-style: solid;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: pointer;
+  &.ui-selecting {
+    background: #FECA40;
+    color: white;
+  }
+  &.ui-selected {
+    background: #F39814;
+  }
 }
 
 .hotentry, .general {
@@ -48,6 +69,14 @@
 }
 .fun, .entertainment, .game {
   border-left-color: #F5AC0F;
+}
+
+.entry-title {
+  position: relative;
+}
+
+.bookmark {
+  position: relative;
 }
 
 #start-button {
