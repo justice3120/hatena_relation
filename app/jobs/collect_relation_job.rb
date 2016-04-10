@@ -2,7 +2,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'cgi'
 require 'csv'
-require 'rinruby'
+require 'rserve'
 
 
 class CollectRelationJob < ActiveJob::Base
@@ -12,7 +12,6 @@ class CollectRelationJob < ActiveJob::Base
     collect_request.update(:status => "processing")
 
     star_list = []
-    bookmark_list = []
 
     params[:eid_list].uniq.each do |eid|
 
@@ -59,22 +58,16 @@ class CollectRelationJob < ActiveJob::Base
       end
     end
 
-    R.eval <<EOS
+    rc = Rserve::Connection.new
+
+    rc.eval <<EOS
 library(igraph)
 library(linkcomm)
 hatena_relations <- read.csv('#{edges_csv_path}')
 g<-graph.edgelist(as.matrix(hatena_relations[1:2]),directed=T)
 E(g)$weight <- hatena_relations[[3]]
 g.bw<-betweenness(g, directed=T)
-dcg <- decompose.graph(g)
-sp.all <- c()
-for (i in 1:length(dcg)){
-  set.seed(1)
-  sp <- spinglass.community(dcg[[i]])
-  sp.all <- rbind(sp.all, cbind(sp$names, g.bw[sp$names], i, sp$membership))
-}
-nodes <- as.data.frame(sp.all)
-colnames(nodes) <- c("name", "bw", "graph_id", "membership")
+nodes <- data.frame(name=attr(g.bw, 'names'), bw=g.bw)
 write.csv(nodes, '#{nodes_csv_path}', quote=F, row.names=F)
 EOS
 
@@ -94,15 +87,7 @@ EOS
     bookmarks = get_bookmarks(params[:eid_list].uniq.first)
 
     nodes = CSV.table(nodes_csv_path)
-    bw_max = nodes[:bw].max
-    color_list = []
     nodes.each do |node|
-      unless color_list[node[:graph_id]]
-        color_list[node[:graph_id]] = []
-      end
-      unless color_list[node[:graph_id]][node[:membership]]
-        color_list[node[:graph_id]][node[:membership]] = '#' + rand(0x1000000).to_s(16).rjust(6, '0')
-      end
       label = node[:name]
       if params[:eid_list].uniq.length.eql?(1)
         bookmark = bookmarks.find {|b| b[:name].eql?(node[:name])}
@@ -116,7 +101,6 @@ EOS
         :id => node[:name],
         :label => label,
         :size => node[:bw] > 1.0 ? node[:bw].to_f : 0.0,
-        :color => color_list[node[:graph_id]][node[:membership]],
         :type => 'square',
         :image => {
           :url => "http://cdn1.www.st-hatena.com/users/#{node[:name].to_s[0, 2]}/#{node[:name]}/profile.gif",

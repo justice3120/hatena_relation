@@ -1,1 +1,1 @@
-install.packages(c("igraph", "linkcomm"), dependencies = TRUE)
+install.packages(c("Rserve", "igraph", "linkcomm"), dependencies = TRUE)

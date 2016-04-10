@@ -46,7 +46,7 @@ gem 'redis-namespace'
 
 gem 'newrelic_rpm'
 
-gem 'rinruby'
+gem 'rserve-client', require: 'rserve'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

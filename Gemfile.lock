@@ -143,7 +143,7 @@ GEM
     redis-namespace (1.5.2)
       redis (~> 3.0, >= 3.0.4)
     ref (2.0.0)
-    rinruby (2.0.3)
+    rserve-client (0.3.1)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
       rspec-expectations (~> 3.4.0)
@@ -228,7 +228,7 @@ DEPENDENCIES
   rails_12factor
   rake
   redis-namespace
-  rinruby
+  rserve-client
   rspec
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
