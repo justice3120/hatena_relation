@@ -52,7 +52,8 @@ $(function() {
       }
       HoldOn.open(holdOnOption);
 
-      requestData = { collect_request: { eid_list: [$('.entry.ui-selected').attr('eid')] } }
+      //requestData = { collect_request: { entry_id: $('.entry.ui-selected').attr('eid') } }
+      requestData = { collect_request: { category: 'economics', start_date: '2016-04-10', end_date: '2016-04-10' } }
       $.post("collect_requests", requestData, function(response) {
         var collectRequestId = response.request_id
         var timerId = setInterval(function() {

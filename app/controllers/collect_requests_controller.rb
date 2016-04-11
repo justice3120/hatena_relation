@@ -26,6 +26,6 @@ class CollectRequestsController < ApplicationController
   private
 
   def collect_request_params
-    params.require(:collect_request).permit(:eid_list => [])
+    params.require(:collect_request).permit(:entry_id, :entry_url, :category, :start_date, :end_date)
   end
 end
