@@ -1,70 +1,82 @@
 $(function() {
-  $("#entry-list").selectable({
-    stop: function(e, ui) {
-      $(".ui-selected:first", this).each(function() {
-        $(this).siblings().removeClass("ui-selected");
-      });
-    }
-  });
-  var hatenaUrl = "http://b.hatena.ne.jp/hotentry"
-  var today = new Date();
-  $('#date').text(today.getFullYear() + '/' + (today.getMonth()+1) + '/' + today.getDate());
+  inithializeSideMenu();
+  var s = inithializeSigma();
+  inithializeStartButton();
 
-  loadEntries(hatenaUrl);
-
-  var s = new sigma({
-    renderer: {
-      container: document.getElementById('graph-container'),
-      type: 'canvas'
-    },
-    settings: {
-      edgeColor: 'default',
-      defaultEdgeColor: '#ccc',
-      animationsTime: 5000,
-      drawLabels: false,
-      scalingMode: 'outside',
-      batchEdgesDrawing: true,
-      hideEdgesOnMove: true,
-      minEdgeSize: 0.5,
-      maxEdgeSize: 2.5,
-      maxNodeSize: 3,
-      maxNodeSize: 30,
-      sideMargin: 1,
-      imageThreshold: 3
-    }
-  });
-
-  $("#start-button").click(function() {
-    var holdOnOption = {
-      theme: "sk-cube-grid",
-      message: "Processing ..."
-    }
-    HoldOn.open(holdOnOption);
-
-    requestData = { collect_request: { eid_list: [$('.entry.ui-selected').attr('eid')] } }
-    $.post("collect_requests", requestData, function(response) {
-      var collectRequestId = response.request_id
-      var timerId = setInterval(function() {
-        $.ajax({
-          url: 'collect_requests/' + collectRequestId,
-          async: true,
-          dataType: "json",
-          success: function(data) {
-            if (data.status == "completed") {
-              clearInterval(timerId);
-              var result = $.parseJSON(data.result);
-              drawNetwork(result);
-            } else if (data.status == "failed") {
-              clearInterval(timerId);
-              var msg = "処理が失敗しました";
-              HoldOn.close();
-              showErrorMessage(msg);
-            }
-          }
+  function inithializeSideMenu() {
+    $("#entry-list").selectable({
+      stop: function(e, ui) {
+        $(".ui-selected:first", this).each(function() {
+          $(this).siblings().removeClass("ui-selected");
         });
-      }, 10 * 1000);
+      }
     });
-  });
+
+    var hatenaUrl = "http://b.hatena.ne.jp/hotentry"
+    var today = new Date();
+    $('#date').text(today.getFullYear() + '/' + (today.getMonth()+1) + '/' + today.getDate());
+
+    loadEntries(hatenaUrl);
+  }
+
+  function inithializeSigma() {
+    var s = new sigma({
+      renderer: {
+        container: document.getElementById('graph-container'),
+        type: 'canvas'
+      },
+      settings: {
+        edgeColor: 'default',
+        defaultEdgeColor: '#ccc',
+        animationsTime: 5000,
+        drawLabels: false,
+        scalingMode: 'outside',
+        batchEdgesDrawing: true,
+        hideEdgesOnMove: true,
+        minEdgeSize: 0.5,
+        maxEdgeSize: 2.5,
+        maxNodeSize: 3,
+        maxNodeSize: 30,
+        sideMargin: 1,
+        imageThreshold: 3
+      }
+    });
+    return s;
+  }
+
+  function inithializeStartButton() {
+    $("#start-button").click(function() {
+      var holdOnOption = {
+        theme: "sk-cube-grid",
+        message: "Processing ..."
+      }
+      HoldOn.open(holdOnOption);
+
+      requestData = { collect_request: { eid_list: [$('.entry.ui-selected').attr('eid')] } }
+      $.post("collect_requests", requestData, function(response) {
+        var collectRequestId = response.request_id
+        var timerId = setInterval(function() {
+          $.ajax({
+            url: 'collect_requests/' + collectRequestId,
+            async: true,
+            dataType: "json",
+            success: function(data) {
+              if (data.status == "completed") {
+                clearInterval(timerId);
+                var result = $.parseJSON(data.result);
+                drawNetwork(result);
+              } else if (data.status == "failed") {
+                clearInterval(timerId);
+                var msg = "処理が失敗しました";
+                HoldOn.close();
+                showErrorMessage(msg);
+              }
+            }
+          });
+        }, 10 * 1000);
+      });
+    });
+  }
 
   function loadEntries(hatenaUrl) {
     var holdOnOption = {
