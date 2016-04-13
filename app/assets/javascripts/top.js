@@ -12,11 +12,14 @@ $(function() {
       }
     });
 
-    var hatenaUrl = "http://b.hatena.ne.jp/hotentry"
     var today = new Date();
-    $('#date').text(today.getFullYear() + '/' + (today.getMonth()+1) + '/' + today.getDate());
+    var y = today.getFullYear();
+    var m = ('0' +(today.getMonth() + 1)).slice(-2);
+    var d = ('0' + today.getDate()).slice(-2);
 
-    loadEntries(hatenaUrl);
+    $('#date').text(y + '/' + m + '/' + d);
+
+    loadEntries(y + m + d);
   }
 
   function inithializeSigma() {
@@ -52,8 +55,7 @@ $(function() {
       }
       HoldOn.open(holdOnOption);
 
-      //requestData = { collect_request: { entry_id: $('.entry.ui-selected').attr('eid') } }
-      requestData = { collect_request: { category: 'economics', start_date: '2016-04-10', end_date: '2016-04-10' } }
+      requestData = { collect_request: { entry_id: $('.entry.ui-selected').attr('eid') } }
       $.post("collect_requests", requestData, function(response) {
         var collectRequestId = response.request_id
         var timerId = setInterval(function() {
@@ -79,7 +81,7 @@ $(function() {
     });
   }
 
-  function loadEntries(hatenaUrl) {
+  function loadEntries(date) {
     var holdOnOption = {
       theme: "sk-cube-grid",
       message: "Loading ..."
@@ -87,17 +89,13 @@ $(function() {
     HoldOn.open(holdOnOption);
 
     $.ajax({
-      url: hatenaUrl,
+      url: 'hotentries/' + date,
       type: 'GET',
-      success: function(res) {
-        $(res.responseText).find("li.entry-unit").slice(0, 8).each(function(index, entryElement) {
-          var entry = $(entryElement)
-          var entryId = entry.attr('data-eid');
-          var title = entry.find('a.entry-link').text();
-          var category = entry.attr('class').split(' ')[1].split('-')[1];
-          var bookmark = entry.find('ul.users').find('span').text();
-          var bookmarkElement = $('<span class="label label-default label-pill pull-xs-right bookmark"/ >').text(bookmark);
-          var entryLiElement = $("<li/>").attr('eid', entryId).addClass('list-group-item').addClass('entry').addClass(category).append($('<div class="entry-title" />').text(title)).append(bookmarkElement);
+      dataType: "json",
+      success: function(entries) {
+        $.each(entries.slice(0, 8), function(index, e) {
+          var bookmarkElement = $('<span class="label label-default label-pill pull-xs-right bookmark"/ >').text(e.bookmarkCount);
+          var entryLiElement = $("<li/>").attr('eid', e.id).addClass('list-group-item').addClass('entry').addClass(e.category).append($('<div class="entry-title" />').text(e.title)).append(bookmarkElement);
           if (index == 0) {
             entryLiElement.addClass('ui-selected');
           }

@@ -64,7 +64,6 @@ class CollectRelationJob < ActiveJob::Base
       eid_list = []
       (start_date..end_date).each do |day|
         hotentry_url = "http://b.hatena.ne.jp/hotentry/#{category}/#{day.strftime('%Y%m%d')}"
-        p hotentry_url
         doc = get_html(hotentry_url)
         doc.css('div.top').css('li.entry-unit').each do |entry|
           eid_list << entry['data-eid']
@@ -72,7 +71,6 @@ class CollectRelationJob < ActiveJob::Base
       end
 
       eid_list.uniq!
-      p eid_list
 
       star_list = []
       eid_list.each do |eid|

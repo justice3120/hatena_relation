@@ -23,5 +23,4 @@
 //= require linkurious-v1.5.0/plugins/sigma.layouts.fruchtermanReingold.min
 //= require linkurious-v1.5.0/plugins/sigma.renderers.linkurious.min
 //= require linkurious-v1.5.0/plugins/sigma.plugins.tooltips.min
-//= require cross-domain-ajax/jquery.xdomainajax
 //= require_tree .

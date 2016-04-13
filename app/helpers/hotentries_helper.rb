@@ -1,0 +1,2 @@
+module HotentriesHelper
+end

@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   post 'collect_requests' => 'collect_requests#create'
   get 'collect_requests/:request_id' => 'collect_requests#show'
 
+  get 'hotentries/:date' => 'hotentries#index'
 
   # Sidekiq の Web コンソールをマウント
   if Rails.env.development?
