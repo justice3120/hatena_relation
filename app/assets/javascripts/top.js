@@ -107,14 +107,20 @@ $(function() {
   }
 
   function drawNetwork(data) {
+    var colors = []
     s.graph.clear();
     s.graph.read(data);
+    sigma.plugins.louvain(s.graph);
     s.graph.nodes().forEach(function(n) {
       if (!s.graph.degree(n.id)) {
         s.graph.dropNode(n.id);
       } else {
         n.x = Math.random();
         n.y = Math.random();
+        if (colors[n._louvain] == null) {
+          colors[n._louvain] = tinycolor.random();
+        }
+        n.color = colors[n._louvain].toHexString();
       }
     });
     s.refresh();
