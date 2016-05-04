@@ -2,6 +2,7 @@ $(function() {
   inithializeSideMenu();
   var s = inithializeSigma();
   inithializeStartButton();
+  inithializeSettingButton();
 
   function inithializeSideMenu() {
     $("#entry-list").selectable({
@@ -80,7 +81,12 @@ $(function() {
       });
     });
   }
-
+  function inithializeSettingButton() {
+    $(".sidebar.right").sidebar({side: "right"});
+    $("#setting-button").click(function(){
+      $(".sidebar.right").trigger("sidebar:toggle");
+    });
+  }
   function loadEntries(date) {
     var holdOnOption = {
       theme: "sk-cube-grid",

@@ -76,4 +76,10 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  config.after_initialize do
+    rserve_port = 6311
+    rserve_path = "Rserve"
+    system("R CMD #{rserve_path} --RS-port #{rserve_port} --slave")
+  end
 end

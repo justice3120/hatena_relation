@@ -16,6 +16,7 @@
 //= require turbolinks
 //= require jquery-ui-1.11.4/jquery-ui.min
 //= require HoldOn.js/HoldOn.min
+//= require jQuery-sidebar/jquery.sidebar.min
 //= require TinyColor/tinycolor
 //= require linkurious-v1.5.0/sigma.min
 //= require linkurious-v1.5.0/plugins/sigma.plugins.animate.min
@@ -25,4 +26,5 @@
 //= require linkurious-v1.5.0/plugins/sigma.renderers.linkurious.min
 //= require linkurious-v1.5.0/plugins/sigma.plugins.tooltips.min
 //= require linkurious-v1.5.0/plugins/sigma.statistics.louvain.min
+//= require linkurious-v1.5.0/plugins/sigma.plugins.design.min
 //= require_tree .

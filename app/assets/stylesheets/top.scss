@@ -1,12 +1,12 @@
-
-body {
-  overflow:auto;
+html {
+  height: 100%;
+  width: 100%;
 }
 
-#share {
-  top: 20px;
-  right: 30px;
-  position: absolute;
+body {
+  height: 100%;
+  width: 100%;
+  overflow:auto;
 }
 
 #side-menu {
@@ -79,6 +79,17 @@ body {
   position: relative;
 }
 
+.sidebar.right {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 270px;
+    z-index: 20;
+    padding: 10px;
+    position: fixed;
+    background: #448AFF;
+}
+
 #start-button {
   width: 80px;
   height: 80px;
@@ -98,6 +109,28 @@ body {
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+#share {
+  bottom: 20px;
+  left: 30px;
+  position: absolute;
+}
+
+#setting-button {
+  width: 40px;
+  height: 40px;
+  top: 20px;
+  right: 30px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  position: absolute;
+  z-index: 10;
+  cursor: pointer;
+  border: 3px solid gray;
+  background-size: contain;
+  background-image: image-url("setting.png");
 }
 
 #graph-container {
